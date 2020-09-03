@@ -10,7 +10,7 @@ int loopstartindex=0;
 int loopendindex=0;
 int main()
 {
-	const std::string input=",.,.,.,.";
+	const std::string input=">++++++++[<+++++++++>-]<c>++++[<+++++++>-]<+c+++++++cc+++c>>++++++[<+++++++>-]<++ c------------c > ++++++[<++++++++ + >-]<+c<c++ + c------c--------c>> > ++++[<++++++++>-] < +c";
 	for (int inp_indxcount = 0; inp_indxcount < input.length(); inp_indxcount++)
 	{
 
@@ -35,17 +35,17 @@ int main()
 		}
 		else if (input[inp_indxcount] == '-')
 		{
-			std::cout << "sub" << std::endl;
+			//std::cout << "sub" << std::endl;
 			brainfuckChar[currentcounter] = brainfuckChar[currentcounter] - 1;
 		}
 		else if (input[inp_indxcount] == '[')
 		{
-			std::cout << "loop start" << std::endl;
+			//std::cout << "loop start" << std::endl;
 			loopstartindex = inp_indxcount;
 		}
 		else if (input[inp_indxcount] == ']' && brainfuckChar[currentcounter] !=0 )
 		{
-			std::cout << "loop end" << std::endl;
+			//std::cout << "loop end" << std::endl;
 			inp_indxcount = loopstartindex;
 		}
 		else if (input[inp_indxcount] == '.')
