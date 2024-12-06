@@ -1,85 +1,116 @@
-// brainfuck.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-char brainfuckChar[30000];//30k bytes of programable array;
-int currentcounter=0;
-int tempmem;
-int loopstartindex=0;
-int loopendindex=0;
-int main()
+#define maxmemcell 30000
+unsigned char mem_cell[maxmemcell]; 
+int current_mem_index = 0;
+struct bf_ll
 {
-	const std::string input=">++++++++[<+++++++++>-]<c>++++[<+++++++>-]<+c+++++++cc+++c>>++++++[<+++++++>-]<++ c------------c > ++++++[<++++++++ + >-]<+c<c++ + c------c--------c>> > ++++[<++++++++>-] < +c";
-	for (int inp_indxcount = 0; inp_indxcount < input.length(); inp_indxcount++)
-	{
+    char val;
+    int pos;
+    struct bf_ll *next;
+};
+struct bf_ll *start = NULL;
+struct bf_ll *createnewnode(char val, int pos)
+{
+    struct bf_ll *newnode = (struct bf_ll *)malloc(sizeof(struct bf_ll));
+    newnode->val = val;
 
-		if (input[inp_indxcount] == '<')
-		{
-			if (currentcounter != 0)
-			{
-				currentcounter--;
-			}
-		}
-		if (input[inp_indxcount] == '>')
-		{	
-			if (currentcounter < sizeof(brainfuckChar)/sizeof(char))
-			{
-				currentcounter++;
-			}
-		}
-		else if (input[inp_indxcount] == '+')
-		{
-			
-			brainfuckChar[currentcounter] = brainfuckChar[currentcounter] +1;
-		}
-		else if (input[inp_indxcount] == '-')
-		{
-			//std::cout << "sub" << std::endl;
-			brainfuckChar[currentcounter] = brainfuckChar[currentcounter] - 1;
-		}
-		else if (input[inp_indxcount] == '[')
-		{
-			//std::cout << "loop start" << std::endl;
-			loopstartindex = inp_indxcount;
-		}
-		else if (input[inp_indxcount] == ']' && brainfuckChar[currentcounter] !=0 )
-		{
-			//std::cout << "loop end" << std::endl;
-			inp_indxcount = loopstartindex;
-		}
-		else if (input[inp_indxcount] == '.')
-		{
-			int out = brainfuckChar[currentcounter];
-			std::cout << out << std::endl;
-		}
-		else if (input[inp_indxcount] == 'c')
-		{
-			
-			std::cout << brainfuckChar[currentcounter] << std::endl;
-		}
-		else if (input[inp_indxcount] == ',')
-		{
-			
-			int inp;
-			std::cin >> inp;
-			brainfuckChar[currentcounter] = inp;
-		}
-		else
-		{
-			;; //anything apart from +-<>[],. will be ignored
-		}
-	}
+    newnode->next = NULL;
+    newnode->pos = pos;
+    return newnode;
+}
+void push(struct bf_ll **start, char val, int pos)
+{
+    if (*start == NULL)
+    {
 
-	return 0;
+        *start = createnewnode(val, pos);
+
+        return;
+    }
+    else
+    {
+        struct bf_ll *tempstart = *start;
+        *start = createnewnode(val, pos);
+        (*start)->next = tempstart;
+    }
+}
+int pop()
+{
+    int val = start->pos;
+
+    if (start->next != NULL)
+    {
+        start = start->next;
+    }
+    else
+    {
+        return -1;
+    }
+    return val;
 }
 
+void displaystack(struct bf_ll *start)
+{
+    if (start == NULL)
+    {
+        return;
+    }
+    printf("\n %s \n", &start->val);
 
-/*> = increases memory pointer, or moves the pointer to the right 1 block.
-< = decreases memory pointer, or moves the pointer to the left 1 block.
-+ = increases value stored at the block pointed to by the memory pointer
-- = decreases value stored at the block pointed to by the memory pointer
-[ = like c while(cur_block_value != 0) loop.
-] = if block currently pointed to's value is not zero, jump back to [
-, = like c getchar(). input 1 character.
-. = like c putchar(). print 1 character to the console*/
+    displaystack(start->next);
+}
+int main()
+{
+    memset(mem_cell, 0, sizeof(mem_cell));
+    char *code = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.";
+    for (int x = 0; x < strlen(code); x++)
+    {
+
+        switch (code[x])
+        {
+        case '>':
+            if (current_mem_index < maxmemcell)
+            {
+                current_mem_index += 1;
+            }
+            else
+            {
+                current_mem_index = 0;
+            }
+            break;
+        case '<':
+            if (current_mem_index > 0)
+            {
+                current_mem_index -= 1;
+            }
+            else
+            {
+                current_mem_index = 0;
+            }
+            break;
+        case '+':
+            mem_cell[current_mem_index] += 1;
+            break;
+        case '-':
+            mem_cell[current_mem_index] -= 1;
+            break;
+        case '.':
+            printf("%c ", mem_cell[current_mem_index]);
+            break;
+        case '[':
+            push(&start, '[', x);
+            break;
+        case ']':
+            if (mem_cell[current_mem_index] == 0)
+            {
+                pop();
+            }
+            else
+            {
+                x = start->pos;
+            }
+        }
+    }
+}
